@@ -1,0 +1,12 @@
+export(AffyInteraction,
+       AffyQA,
+       AffyRegress,
+       Filter,
+       interaction.result2html,
+       make.contrast,
+       make.design,
+       post.interaction,
+       pre.process,
+       regress,
+       result2html,
+       select.sig.gene)

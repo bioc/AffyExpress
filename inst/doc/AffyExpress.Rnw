@@ -1,0 +1,380 @@
+
+
+%\VignetteIndexEntry{1. Primer}
+%
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+\documentclass[11pt]{article}
+\usepackage{amsmath,pstricks}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{lscape}
+\usepackage{graphics}
+\usepackage{Sweave}
+\textwidth=5.4in \textheight=8.8in
+%\parskip=.3cm
+\oddsidemargin=.1in \evensidemargin=.1in \headheight=-.5in
+\setcounter{tocdepth}{2} \setcounter{secnumdepth}{3}
+\begin{document}
+\title{Affymetrix Quality Assessment and Analysis Tool}
+\author{Xiwei Wu and Xuejun Arthur Li}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+Affymetrix GeneChip is a commonly used tool to study gene expression profiles. 
+The purpose of this package is to provide a comprehensive and easy-to-use tool for quality assessment 
+and to identify differentially expressed genes in the Affymetrix gene expression data. 
+Initial data quality assssment is achieved by a series of QC plots in an HTML report for 
+easy visualization. More importantly, functions are provided for biologists who have 
+little statistical background to generate design and contrast matrices for simple, as well as 
+complicated, designed experiments, such as one factor with multiple levels, multiple factors 
+with interactions, or one or more factors with covariates. Users can select either an ordinary linear
+regression model, LIMMA~\cite{limma}, or permutation test for differentially expressed gene identification. 
+Differentially expressed genes are reported in tabular format with annotations hyperlinked to 
+online biological databases. Wrapper functions are also designed to make analysis even more simplified. 
+This guide will use an example dataset to demonstrate how to perform analysis of experiments 
+with commonly used designs by using this package. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data}
+
+We will use the dataset \texttt{estrogen} (8 Affymetrix genechips) downloaded 
+from the Bioconductor that includes 12,625 genes to demonstrate how to use this 
+vignette.  This dataset has also been used as example data in the \verb"factDesign" and 
+\verb"LIMMA" vignette. The investigators are interested in the effect of estrogen 
+on the genes in ER+ breast cancer cells and how they differ across different time periods.  
+In this example, there are two time periods, 10 hours and 48 hours.  
+
+<<>>=
+library(AffyExpress)
+datadir <- file.path(.find.package("estrogen"),"extdata")
+phenoD<-read.AnnotatedDataFrame("phenoData.txt", path=datadir, sep="", header=TRUE, row.names="filename")
+raw<-ReadAffy(filenames=rownames(pData(phenoD)), phenoData= phenoD, celfile.path=datadir)
+pData(raw)
+@
+It is very important to have the correct phenotype before doing further analysis. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Quality Assessment}
+To run the quality assessment, run the following function 
+<<>>=
+AffyQA (parameters=c("estrogen", "time.h"), raw=raw) 
+@ 
+The \verb"AffyQA" function will create a quality assessment report in AffyQA.html that 
+contains a set of assessment plots, including Affymetrix recommended quality assessment, 
+RNA quality assessment,  sample quality assessment, quality diagnostic using affyPLM  
+(pseudo-chip images  and NUSE and RLE plots) in your current working directory.
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preprocessing and Filtering}
+We can use the \verb"pre.process" function to convert the
+\verb"AffyBatch" data set into an \verb"ExpressionSet" using either
+\verb"RMA" or \verb"GCRMA" methods. Suppose that we are using the
+\verb"RMA" method. 
+<<>>= 
+normaldata<-pre.process(method="rma", raw=raw) 
+dims(normaldata) 
+@ 
+The next step, we will filter the normalized data by using the
+\verb"Filter" function. Suppose that we would like to filter the data based on at 
+least 2 of the chips whose expression value is greater than 6. 
+<<>>= 
+filtered<-Filter(object=normaldata, numChip=2, bg=6) 
+@
+Now, we have 9038 genes left.  The examples below will be based on these 9038 genes.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Identifying Differentially Expressed Genes}
+Identifying differentially expressed genes depends on a researcher's interest and
+applying correct statistical models during the analysis process.  We will illustrate
+a few basic statistical models on this data set.  
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Single Factor}
+Suppose we would like to identify how differentially expressed genes respond
+to estrogen regardless of time period. Analysis on a single categorical variable 
+is the same as One Way ANOVA.  Since we only have two
+levels, \verb"present" and \verb"absent", for the \verb"estrogen" variable, 
+this type of analysis is also equivalent to a two-sample t test. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Design Matrix and Contrast Matrix}
+To run the analysis, we need to create a design and a
+contrast matrix.  One of the major strengths of this package that
+we can use the built-in function to create the design matrix and the
+contrast matrix using standard statistics approaches which is
+different from the design matrix from the \verb"LIMMA" package. To
+create a design matrix, we will use the \verb"make.design" function. 
+<<>>=
+design<-make.design(target=pData(filtered), cov="estrogen") 
+design
+@ 
+Notice that the name of the second column of the design matrix 
+is \texttt{estrogen/present}, where \texttt{estrogen} is the name of the variable 
+and \texttt{present} tells us that \texttt{present} corresponds to 1.  
+Thus, the design matrix above  is equvalent to the equation below:
+
+\begin{equation}
+\\y=\alpha+\beta_{E}x_{E}+\epsilon
+\end{equation}
+where
+\[ x_{E}=\left\{ \begin{array}{ll}
+                  1 & \mbox{if estrogen = "present"}\\
+                  0 & \mbox{if estrogen = "absent"}
+                \end{array}
+        \right. \]
+
+Next we need to create a contrast matrix.  Since we are
+comparing \verb"present" versus \verb"absent", we will create the
+following contrast: 
+<<>>=
+contrast<-make.contrast(design.matrix=design, compare1="present",
+compare2="absent") 
+contrast 
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Analysis}
+Once the design matrix and contrast matrix are created, we can run
+the analysis by using the \verb"regress" function.  There are
+three types of regression methods that are being supported: \verb"LIMMA" 
+(computing moderated 
+t-statistics and log-odds of differential expressions by empirical
+Bayes shrinkage of the standard errors towards a common value),
+permutation test (resampling the phenotype), and ordinary linear
+regression.  Also, we can apply multiple comparison corrections by
+using the \verb"adj" option, such as \verb"fdr".  The default
+value for the \verb"adj" is \verb"none"
+
+<<>>= 
+result<-regress(object=filtered, design=design, contrast=contrast, method="L", adj="fdr") 
+@
+Here are the first three genes of the result
+<<>>=
+result[1:3,] 
+@ 
+
+For the next step, we can select differentaly expressed genes based on p
+value and/or fold change. Suppose that we would like to select
+genes with a p value <0.05 and a fold change value greater than 1.5.
+<<>>= 
+select<-select.sig.gene(top.table=result, p.value=0.05, m.value=log2(1.5)) 
+@ 
+The \verb"select.sig.gene" function adds an additional column, \verb"significant",
+which gives a value of either TRUE or FALSE indicating whether the gene is
+differentially expressed based on your selection criteria.  In this example,
+there are 381 differentially expressed genes being selected. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Output Your Result}
+To output the differentially expressed genes along with annotations to an HTML file in your current working
+directory,  we can use the \verb"result2html" function.
+<<>>=
+result2html(cdf.name=annotation(filtered), result=select, filename="singleFactor") 
+@
+%The HTML file would look like the one below:
+%\newpage
+%\rotatebox{90}{\resizebox{9in}{!}{\includegraphics[0in,0in][15in,8in]{singleFactor.jpg}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{A Wrapper Function}
+There is a wrapper function, \texttt{AffyRegress}, that can acomplish
+all of the above steps together including: create a design and contrast matrix,
+run regression, select differentaly expressed genes, and output the
+differentally expressed gene to an html file.
+
+<<>>=
+result.wrapper<-AffyRegress(normal.data=filtered, cov="estrogen", compare1="present",
+compare2="absent", method="L", adj="fdr", p.value=0.05, m.value=log2(1.5))
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Single Factor Adjusting for Covariates}
+We can analyze the single factor effect (\verb"estrogen" in our
+example) and adjust for other covariates (\verb"time.h").  This is not the researcher's interest.
+However, we will present this example only for illustration purposes.
+This statistical approach is the same as Randomized block design which is 
+used to iosolate the variation due to the nuisance variable. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Design Matrix and Contrast Matrix}
+We can create the following design and contrast matrix. 
+<<>>=
+design.rb<-make.design(target=pData(filtered), cov=c("estrogen", "time.h")) 
+design.rb
+@
+The design matrix above is equvalent to the equation below:
+\begin{equation}
+\\y=\alpha+\beta_{E}x_{E}+\beta_{T}x_{T}+\epsilon
+\end{equation}
+where
+\[ x_{T}=\left\{ \begin{array}{ll}
+                  1 & \mbox{if time = 48}\\
+                  0 & \mbox{if time = 10}
+                \end{array}
+        \right. \]
+<<>>=
+contrast.rb<-make.contrast(design.matrix=design.rb, compare1="present", compare2="absent") 
+contrast.rb 
+@
+Once we obtained the design and contrast matrix, we can use similar steps documented
+in section 5.1.2 to select differentially expressed genes.  
+We can also use the wrapper function \verb"AffyRegress" to complete all the steps at once. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Multifactor Analysis I}
+One possible interest is to examine the estrogen effect  at either the 10 hour period or 48 hour period.
+One way of conducting the analysis is to subset the data set into two groups, with one
+containing data at the 10 hour period and the other containing data at the  48 hour period.  Then
+we can use single-factor analysis for each group.  Instead of spliting the data into
+two groups, we can use a more complex model like the one below:
+
+\begin{equation}
+\\y=\alpha+\beta_{E}x_{E}+\beta_{T}x_{T}+\beta_{E:T}x_{E}x_{T}+\epsilon
+\end{equation}
+
+The interaction term between estrogen and time allows us to analyze the estrogen effect
+at different time periods.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Design Matrix and Contrast Matrix}
+We will first create the following design matrix, which is equivalent to the model above.
+<<>>=
+design.int<-make.design(pData(filtered), cov=c("estrogen", "time.h"), int=c(1,2)) 
+design.int
+@
+Suppose we are interested in the estrogen effect at the 10 hour period. We will create the follwoing
+contrast:
+<<>>=
+contrast.10<-make.contrast(design.matrix=design.int, compare1 ="present", compare2="absent", level="10") 
+contrast.10
+@
+Similarly to creating a contrast matrix at the 48 hour period, we will do the following:
+<<>>=
+contrast.48<-make.contrast(design.matrix=design.int, compare1 ="present", compare2="absent", level="48") 
+contrast.48
+@
+\subsubsection{Analysis and Output Your Results}
+Next we can use the same \verb"regress", \verb"select.sig.gene", and \verb"result2html" function
+to complete the rest of the analysis for each time period.  However, the wrapper function \verb"AffyRegress"
+will not work for this situation.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Multifactor Analysis II}
+A commmon interest of biologists is to identify  how genes respond to estrogen
+treatments differently at different time points.  In statistical jargon, this is a 
+test for interaction. Interaction is a statistical term refering to a situation when the 
+relationship between the outcome and the variable of the main interest differs at different levels of 
+the extraneous  variable. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Design Matrix and Contrast Matrix}
+Like before, we need to create the design and contrast matrix to detect the interaction effect. The design matrix
+is the same as the one we just created \verb"design.int".  However, we will create a new contrast in
+order to test the interaction effect. 
+<<>>=
+contrast.int<-make.contrast(design.int, interaction=TRUE)
+contrast.int 
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Identify Genes with Interaction Effect}
+We will use the same \texttt{regress} function to detect which genes have the interaction effect. 
+<<>>=
+result.int<-regress(object=filtered, design=design.int, contrast=contrast.int, method="L") 
+@
+Suppose we would like to select genes having the interaction
+effect based on a p value <0.05, and fold change >1.5.  Note the 
+fold change here means the difference of the fold change of 
+estrogen duringthe  48 hour period and the fold change of estrogen during the
+10 hour period.
+<<>>=
+select.int<-select.sig.gene(result.int, m.value=log2(1.5), p.value=0.05)
+@
+There are 224 genes that are significant.  That means among these 224 genes, 
+the fold change from \texttt{absent} and \texttt{present} differ in the two
+time periods.  
+<<>>= 
+sig.ID<-select.int$ID[select.int$significant==TRUE]
+sig.index<-match(sig.ID, rownames(exprs(filtered))) 
+@ 
+The variable \texttt{sig.index} contains the column index of significant genes
+in the \mbox{\texttt{ExpressionSet}}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Analysis on Genes with the Interaction Effect}
+ For this group of genes, we can use the 
+\texttt{post.interaction} function to analyze how we 
+can further explore how genes are expressed differently at different time points. 
+Since \texttt{time.h} has two factors, the data type returned from this 
+function is \texttt{list} with length equaling two.  Each component of the list
+has the same formatted table returned from the \texttt{gene.select}
+function. 
+<<>>= 
+result2<-post.interaction(strata.var="time.h",compare1="present", compare2="absent", design.int=design.int, 
+    object=filtered[sig.index,], method="L",adj="fdr", p.value=0.05, m.value=log2(1.5))
+@
+Among these 224 genes, 89 are differently expressed at the 10 hour period and
+156 are differently expressed at the 48 hour period. 
+
+Next, we can output the differentially expressed genes
+to an HTML file by using the \texttt{interaction.result2html} function. 
+This HTML file is similar to the one created by \texttt{result2html}.  It
+contains the \texttt{Log2 ratio} and the \texttt{P value} for each time period.
+In the last column of this file, it contains the \texttt{P value} for the 
+interaction effect.
+<<>>=
+interaction.result2html(cdf.name=annotation(filtered), result=result2, inter.result=result.int)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Analysis on Genes without the Interaction Effect}
+For genes without the interaction effect, which means that they respond to
+estrogen treatment similarly between the two time points, we can use the same design 
+and contrast matrix from section 5.1.1 to detect estrogen effect.
+<<>>=
+result1<-regress(object=filtered[-sig.index,], design=design, contrast=contrast, method="L", adj="fdr") 
+select<-select.sig.gene(top.table=result1, p.value=0.05, m.value=log2(1.5)) 
+@
+\subsubsection{A Wrapper Function}
+The entire process above can also be acomplished by a wrapper function,
+\texttt{AffyInteraction}.  This wrapper function will create a design matrix and contrast
+matrix for  the interaction test.  Then it tests for  an interaction effect for 
+each gene and identifies genes whose interaction  test is  significant.  
+For genes with interaction effect, they'll fit a linear  model for each gene in each
+time period. For genes that don't have  interaction effect, they'll fit a linear model for each 
+gene without splitting  the data by  time period.  It will output signficant results in the end.
+<<>>=
+result3<-AffyInteraction(object=filtered, method="L", main.var="estrogen", 
+strata.var = "time.h", compare1="present", compare2="absent", p.int=0.05, m.int=log2(1.5), 
+adj.int="none", p.value=0.05, m.value=log2(1.5), adj="fdr")
+@
+\begin{thebibliography}{99}
+\bibitem{limma} Smyth, G. K. (2005).
+Limma: linear models for microarray data.
+\emph{Bioinfomatics and Computational biology Solutions using R and Bioconductor},
+R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds.), Springer, New York
+\end{thebibliography}
+
+
+
+
+\end{document}
