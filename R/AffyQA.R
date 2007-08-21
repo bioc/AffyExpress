@@ -65,8 +65,10 @@ AffyQA<-function (parameters, raw, Output = "AffyQA.html")
     HTML("<a name= \"top\"></a>", file = Output)
     titl <- as.title("<p align=center>Affymetrix Quality Assessment</p>")
     HTML(titl, file = Output, append = FALSE)
-    targetDisplay <- xtable(target_sort)
-    HTML(targetDisplay, file = Output)
+	
+    ##targetDisplay <- xtable(target_sort)
+    ##HTML(targetDisplay, file = Output)
+	HTML(target_sort, file = Output)
     HTML(paste("The samples are grouped by:", paste(parameters, 
         collapse = " and ")), file = Output)
     HTML("<hr><dl><li> Figure 1 -<a href= #fig1> Affy Recommended Quality \n\t    Assessment </a>", 
