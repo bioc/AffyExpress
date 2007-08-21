@@ -6,7 +6,7 @@ Author: Xiwei Wu <xwu@coh.org>, Xuejun Arthur Li <xueli@coh.org>
 Maintainer: Xuejun Arthur Li <xueli@coh.org> 
 Depends: R (>= 2.5.0), affy, limma, Biobase, gcrma, R2HTML, xtable,  
   affyPLM, genefilter, annaffy, matchprobes
-Suggests: simpleaffy, estrogen, hgu95av2cdf, hgu95av2
+Suggests: simpleaffy, estrogen, hgu95av2cdf, hgu95av2, test3cdf
 Description: The purpose of this package is to provide a comprehensive 
   and easy-to-use tool for quality assessment  and to identify differentially 
   expressed genes in the Affymetrix gene expression data. 
