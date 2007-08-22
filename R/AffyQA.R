@@ -1,7 +1,8 @@
 
 AffyQA<-function (parameters, raw, Output = "AffyQA.html") 
 {
-    
+    library(R2HTML)
+	library(affyPLM)
     library(simpleaffy)
     targets_old <- pData(raw)
     dum <- rep(c("yellow", "red", "turquoise", "brown", "darkviolet", 
@@ -224,8 +225,8 @@ AffyQA<-function (parameters, raw, Output = "AffyQA.html")
         "(by Eric Lecoutre),"), file = Output)
     HTML(paste("<li>", "simpleaffy Version", package.version("simpleaffy"), 
         "(by Crispin J. Miller), and"), file = Output)
-    HTML(paste("<li>", "xtable Version", package.version("xtable"), 
-        "(by David Dahl)"), file = Output)
+    ##HTML(paste("<li>", "xtable Version", package.version("xtable"), 
+    ##    "(by David Dahl)"), file = Output)
     HTML(paste("<hr>Generated on: ", date()), file = Output)
     HTMLStop()
 }
