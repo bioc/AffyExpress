@@ -53,7 +53,8 @@ In this example, there are two time periods, 10 hours and 48 hours.
 
 <<>>=
 library(AffyExpress)
-datadir <- file.path(.find.package("estrogen"),"extdata")
+library(estrogen)
+datadir <- system.file("extdata", package = "estrogen")
 phenoD<-read.AnnotatedDataFrame("phenoData.txt", path=datadir, sep="", header=TRUE, row.names="filename")
 raw<-ReadAffy(filenames=rownames(pData(phenoD)), phenoData= phenoD, celfile.path=datadir)
 pData(raw)
