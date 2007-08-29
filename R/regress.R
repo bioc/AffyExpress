@@ -1,8 +1,6 @@
 regress<-function(object, design, contrast, method, adj="none", 
     permute.time=1000) 
 {
-	##library(time)
-	##old<-getTime()
 	fit <- lmFit(object, design)
 	fit2 <- contrasts.fit(fit, contrast)
 	if (method == "F") {
@@ -33,6 +31,5 @@ regress<-function(object, design, contrast, method, adj="none",
 	}
 	names(diff)<-c("ID", Log2Ratio.name, "F", "P.Value","adj.P.Val")
 	diff_sort <- SortMat(diff, Sort=1)
-	##print(timeElapsed(old, getTime()))
 	diff_sort
 }

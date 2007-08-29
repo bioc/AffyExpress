@@ -4,6 +4,7 @@ interaction.result2html<-function(cdf.name, result, inter.result, filename="inte
 {
 
     library(cdf.name,character.only =TRUE) 
+	require("annaffy")
     fullresult<-list()
     name.index<-list()
     g<-list()

@@ -1,6 +1,7 @@
 result2html<-function(cdf.name, result, filename="result"){
     
     library(cdf.name,character.only =TRUE)
+	require("annaffy")
     good <-result$significant
     if (sum(good)==0) print("No significant result is generated")
     else{

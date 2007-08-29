@@ -13,8 +13,9 @@
   5.  Output the differentally expressed gene to a html file
 }
 \usage{
-AffyRegress(normal.data, cov, compare1, compare2, method, adj="none",
-    p.value=0.05, m.value=0, filename="result")
+AffyRegress(normal.data, cov, compare1, compare2, method, 
+    int=NULL, level=NULL, adj="none", p.value=0.05, m.value=0, 
+	filename="result")
 }
 
 \arguments{
@@ -33,6 +34,16 @@ AffyRegress(normal.data, cov, compare1, compare2, method, adj="none",
        errors towards a common value; 
     "F" for using ordinary linear regression; 
     "P" for permuation test by resampling the phenotype}
+  \item{int}{if int=NULL, the interaction effect is not considered;
+    otherwise, use two integers to indicate which covariates are 
+	considered for interaction effect.  For example, 
+	if cov<-c("estrogen","drug","time")
+	and you are considering the interaction between "estrogen" and 
+	"time", then you would write	int=c(1,3) }
+  \item{level}{you only specify this term when the design matrix contains an
+	interaction term.  Suppose that you would like to compare "drug1" to "drug2"
+	only when estrogen is "present", where "present" is one of the values of the
+	estrogen variable.  You will use "present" as level.}
   \item{adj}{adjustment method for multiple comparison test, including "holm", 
     "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none".  The default
     value is "none". Type help(p.adjust) for more detail.}

@@ -1,9 +1,9 @@
 
 AffyQA<-function (parameters, raw, Output = "AffyQA.html") 
 {
-    library(R2HTML)
-	library(affyPLM)
-    library(simpleaffy)
+    require("R2HTML")
+	require("affyPLM")
+    require("simpleaffy")
     targets_old <- pData(raw)
     dum <- rep(c("yellow", "red", "turquoise", "brown", "darkviolet", 
         "steelblue", "springgreen", "sienna", "darkslategray", 

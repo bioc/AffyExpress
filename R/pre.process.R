@@ -2,7 +2,8 @@
 pre.process<-function(method, raw, plot=FALSE, output=FALSE)
 {
     if (method == "gcrma") {
- 	normaldata  <- gcrma(raw)
+		require("gcrma")
+ 	    normaldata <- gcrma(raw)
     }
     else if (method == "rma") {
         normaldata  <- rma(raw)

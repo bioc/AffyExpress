@@ -1,6 +1,7 @@
 
 Filter<-function(object, numChip=1, bg=0, range=0, iqrPct=0)
 {
+    require("genefilter")
     ## method 1:  filtering based on minimum # of chip > bg
     if (bg > 0){
         maxChip<-dim(exprs(object))[2]
