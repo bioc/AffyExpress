@@ -1,7 +1,7 @@
 
 \name{pre.process}
 \alias{pre.process}
-\title{Converting }
+\title{Data Preprocessing}
 \description{  
   This function converts an 'AffyBatch' into an 'ExpressionSet' using either
     RMA or GCRMA methods

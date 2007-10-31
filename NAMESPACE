@@ -9,4 +9,5 @@ export(AffyInteraction,
        pre.process,
        regress,
        result2html,
-       select.sig.gene)
+       select.sig.gene,
+	   import.data)
