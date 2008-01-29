@@ -25,9 +25,11 @@ import.data(phenotype.file, path=getwd(), ...)
 \author{Xiwei Wu \email{xwu@coh.org}, Xuejun Arthur Li \email{xueli@coh.org}}
 
 \examples{
+\dontrun{
 datadir <- system.file("extdata", package = "estrogen")
 raw <- import.data("phenodata.txt", path=datadir, header=TRUE, sep="", 
     row.names="filename")
+}
 }
 
 \keyword{methods}
