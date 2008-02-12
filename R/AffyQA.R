@@ -60,7 +60,10 @@ AffyQA<-function (parameters, raw, Output = "AffyQA.html")
     }
     genome <- cleancdfname(cdfName(raw))
 
-    included <-getAlpha1(genome)
+    ##included <-getAlpha1(genome)
+	setQCEnvironment(genome)
+    included <- qc.get.alpha1()
+
 
     HTMLStart(filename = Output)
     HTML("<a name= \"top\"></a>", file = Output)
