@@ -12,7 +12,7 @@
 
 \arguments{
   \item{target}{a data frame contains chip and covaraite information, 
-    or experimental phenotypes recorded in eSet and exprSet-derived classes}
+    or experimental phenotypes recorded in eSet and ExpressionSet-derived classes}
   \item{cov}{a list of 1-n covariates} 
   \item{int}{if int=NULL, the interaction effect is not considered;
     otherwise, use two integers to indicate which covariates are 
@@ -46,7 +46,3 @@ design2<-make.design(target, c("drug","gender", "group"), int=c(1,3))
 }
 
 \keyword{array}
-
-
-
-
