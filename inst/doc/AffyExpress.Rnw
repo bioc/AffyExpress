@@ -6,7 +6,7 @@
 % likely to be overwritten.
 %
 \documentclass[11pt]{article}
-\usepackage{amsmath,pstricks}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{epsfig}
 \usepackage{lscape}
