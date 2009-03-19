@@ -1,5 +1,5 @@
 Package: AffyExpress
-Version: 1.9.0
+Version: 1.9.1
 Date: 2008-01-29
 Title: Affymetrix Quality Assessment and Analysis Tool
 Author: Xiwei Wu <xwu@coh.org>, Xuejun Arthur Li <xueli@coh.org> 
@@ -11,5 +11,5 @@ Description: The purpose of this package is to provide a comprehensive
   and easy-to-use tool for quality assessment  and to identify differentially 
   expressed genes in the Affymetrix gene expression data. 
 biocViews: Microarray, OneChannel, QualityControl, Preprocessing,
-  Statistics, DifferentialExpression, Annotation, ReportWriting, Visualization
+  Bioinformatics, DifferentialExpression, Annotation, ReportWriting, Visualization
 License: LGPL
