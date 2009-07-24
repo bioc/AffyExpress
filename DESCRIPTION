@@ -1,10 +1,10 @@
 Package: AffyExpress
-Version: 1.11.0
-Date: 2008-01-29
+Version: 1.11.1
+Date: 2009-07-22
 Title: Affymetrix Quality Assessment and Analysis Tool
 Author: Xiwei Wu <xwu@coh.org>, Xuejun Arthur Li <xueli@coh.org> 
 Maintainer: Xuejun Arthur Li <xueli@coh.org> 
-Depends: R (>= 2.5.0), affy, limma   
+Depends: R (>= 2.5.0), affy (>= 1.23.4), limma   
 Suggests: simpleaffy, R2HTML, affyPLM, hgu95av2cdf, hgu95av2, test3cdf,
           genefilter, estrogen, annaffy, gcrma
 Description: The purpose of this package is to provide a comprehensive 
