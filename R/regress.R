@@ -22,7 +22,7 @@ regress<-function(object, design, contrast, method, adj="none",
 		fit2$F.p.value<-count/permute.time
 	}
 	adj.P.Value <- p.adjust(fit2$F.p.value, method = adj)
-	diff<-cbind(fit2$genes, as.data.frame(fit2$coefficients), 
+	diff<-cbind(rownames(fit2), as.data.frame(fit2$coefficients), 
 	    as.data.frame(fit2$F), as.data.frame(fit2$F.p.value), 
 		as.data.frame(adj.P.Value)) 
 	Log2Ratio.name<-c()
