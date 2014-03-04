@@ -1,15 +1,17 @@
 Package: AffyExpress
-Version: 1.29.1
+Version: 1.29.2
 Date: 2009-07-22
 Title: Affymetrix Quality Assessment and Analysis Tool
-Author: Xiwei Wu <xwu@coh.org>, Xuejun Arthur Li <xueli@coh.org> 
-Maintainer: Xuejun Arthur Li <xueli@coh.org> 
-Depends: R (>= 2.10), affy (>= 1.23.4), limma   
+Author: Xiwei Wu <xwu@coh.org>, Xuejun Arthur Li <xueli@coh.org>
+Maintainer: Xuejun Arthur Li <xueli@coh.org>
+Depends: R (>= 2.10), affy (>= 1.23.4), limma
 Suggests: simpleaffy, R2HTML, affyPLM, hgu95av2cdf, hgu95av2, test3cdf,
-          genefilter, estrogen, annaffy, gcrma
-Description: The purpose of this package is to provide a comprehensive 
-  and easy-to-use tool for quality assessment  and to identify differentially 
-  expressed genes in the Affymetrix gene expression data. 
-biocViews: Microarray, OneChannel, QualityControl, Preprocessing,
-  Bioinformatics, DifferentialExpression, Annotation, ReportWriting, Visualization
+        genefilter, estrogen, annaffy, gcrma
+Description: The purpose of this package is to provide a comprehensive
+        and easy-to-use tool for quality assessment and to identify
+        differentially expressed genes in the Affymetrix gene
+        expression data.
 License: LGPL
+biocViews: Microarray, OneChannel, QualityControl, Preprocessing,
+        DifferentialExpression, Annotation, ReportWriting,
+        Visualization
